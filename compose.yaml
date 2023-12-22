@@ -9,12 +9,26 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-  web:
+
+  web:  
     build: ./multimessage
-    command: sh -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+    command: sh -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:${APP_PORT}"
     ports:
       - "${APP_PORT}:${APP_PORT}"
     env_file:
       - .env
     depends_on:
       - db
+      - signal-cli-rest-api
+
+  signal-cli-rest-api:
+    image: bbernhard/signal-cli-rest-api:latest
+    environment:
+      - MODE=json-rpc #supported modes: json-rpc, native, normal
+      #- AUTO_RECEIVE_SCHEDULE=0 22 * * * #enable this parameter on demand (see description below)
+    ports:
+      - "${SIGNALCLI_PORT}:${SIGNALCLI_PORT}"
+    volumes:
+      - ./signal-cli:/home/.local/share/signal-cli:Z
+
+
