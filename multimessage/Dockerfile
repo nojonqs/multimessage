@@ -17,3 +17,5 @@ RUN pip3 install -r requirements.txt --no-cache-dir
 
 # copy source code
 COPY . /app
+
+ENTRYPOINT ["sh", "entrypoint.sh"]

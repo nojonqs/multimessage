@@ -12,7 +12,6 @@ services:
 
   web:  
     build: ./multimessage
-    command: sh -c "python3 manage.py makemigrations && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:${APP_PORT}"
     ports:
       - "${APP_PORT}:${APP_PORT}"
     env_file:
@@ -20,6 +19,8 @@ services:
     depends_on:
       - db
       - signal-cli-rest-api
+    volumes:
+      - "./static-lib:/static:Z"
 
   signal-cli-rest-api:
     image: bbernhard/signal-cli-rest-api:latest
