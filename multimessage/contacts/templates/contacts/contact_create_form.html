@@ -4,4 +4,26 @@
   {{ form.as_p }}
   <input type="submit" value="Create">
 </form>
+
+<button type="button" class="btn btn-primary" id="signal_link_device_btn">Link Device</button>
+<button type="button" class="btn btn-primary" id="signal_setup_bot">Setup Bot</button>
+<button type="button" class="btn btn-primary" id="signal_send_message_btn">Send Message</button>
 {% endblock content %}
+
+{% block javascript %}
+<script type="text/javascript">
+  document.getElementById("signal_link_device_btn").onclick = function () {
+      window.open("{% url 'contact:signal_link_device' %}", "_blank");
+  };
+</script>
+<script type="text/javascript">
+  document.getElementById("signal_send_message_btn").onclick = function () {
+      location.href = "{% url 'contact:signal_send_message' %}";
+  };
+</script>
+<script type="text/javascript">
+  document.getElementById("signal_setup_bot").onclick = function () {
+      location.href = "{% url 'contact:signal_setup_bot' %}";
+  };
+</script>
+{% endblock javascript %}
