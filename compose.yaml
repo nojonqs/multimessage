@@ -21,6 +21,7 @@ services:
       - signal-cli-rest-api
     volumes:
       - "./static-lib:/static:Z"
+      - "./multimessage:/app:Z"
 
   signal-cli-rest-api:
     image: bbernhard/signal-cli-rest-api:latest
