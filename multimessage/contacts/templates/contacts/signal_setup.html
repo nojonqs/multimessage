@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="signal_link_device">
+  {% if not is_signal_linked %}
+  <a>Signal is not linked yet. Scan this QR-Code in your signal app and refresh the page afterwards.</a>
+  {% elif is_signal_linked %}
+  <a>Already linked</a>
+  {% endif %}
+  <img src="{% url 'contact:signal_link_device_qrcode' %}" alt="{% url 'contact:signal_link_device_qrcode' %}"></img>
+</div>
+
+{% endblock content %}
+
+{% block javascript %}
+{% endblock javascript %}
