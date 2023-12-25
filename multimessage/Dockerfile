@@ -1,4 +1,4 @@
-FROM python:3.12.1-alpine
+FROM python:3.11-alpine
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN apk add alpine-sdk
 # install python packages
 COPY requirements.txt /app
 
-RUN pip3 install -r requirements.txt --no-cache-dir
+RUN python3 -m pip install -r requirements.txt --no-cache-dir
 
 # copy source code
 COPY . /app
