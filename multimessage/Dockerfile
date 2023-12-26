@@ -18,8 +18,6 @@ RUN python3 -m pip install -r requirements.txt --no-cache-dir
 # copy source code
 COPY . /app
 
-ENV ALLOWED_HOSTS $ALLOWED_HOSTS
-
 RUN python3 manage.py makemigrations contacts --noinput
 
 ENTRYPOINT ["sh", "entrypoint.sh"]
