@@ -31,6 +31,9 @@ class ContactListCreateView(generic.CreateView):
 
     success_url = reverse_lazy('contact:index')
 
+class ContactDeleteView(generic.DeleteView):
+    model = Contact
+    success_url = reverse_lazy('contact:contact_overview')
 
 class ContactOverview(generic.ListView):
     model = Contact
