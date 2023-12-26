@@ -13,6 +13,7 @@ urlpatterns = [
     path("create_list/", views.ContactListCreateView.as_view(), name='list_create'),
     path("overview/contacts/", views.ContactOverview.as_view(), name="contact_overview"),
     path("overview/groups/", views.GroupOverview.as_view(), name="group_overview"),
+    path("delete/contant/<int:pk>/", views.ContactDeleteView.as_view(), name="contact_delete"),
 
     path("send_message/", send_message_view, name="signal_send_message"),
     path("setup/", setup_view, name="signal_setup"),
