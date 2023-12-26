@@ -7,7 +7,7 @@ import os
 import json
 import requests
 from functools import wraps
-from contacts.models import Contact, ContactList
+from contacts.models import Contact, Group
 
 signal_bot: Optional[SignalBot] = None
 

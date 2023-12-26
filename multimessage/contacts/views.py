@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.views import generic
 from django.urls import reverse_lazy
 from django.shortcuts import render
-from .models import Contact, ContactList
+from .models import Contact, Group
 from .forms import ContactCreateForm, ContactListCreateForm
 from .signal_helper import is_signal_linked, is_signal_bot_setup, send_message_to
 
@@ -26,7 +26,7 @@ class ContactCreateView(generic.CreateView):
 class ContactListCreateView(generic.CreateView):
     template_name = 'contacts/contact_list_create_form.html'
     form_class = ContactListCreateForm
-    model = ContactList
+    model = Group
 
     success_url = reverse_lazy('contact:index')
 
@@ -47,7 +47,7 @@ def prepare_message(request):
             send_message_to(recipiant, message)
 
         for group in f.cleaned_data['group_recipiants']:
-            group: ContactList
+            group: Group
             for recipiant in group.contacts.all():
                 send_message_to(recipiant, message)
 
