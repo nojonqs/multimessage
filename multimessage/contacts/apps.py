@@ -6,9 +6,6 @@ class ContactsConfig(AppConfig):
     name = 'contacts'
 
     def ready(self) -> None:
-        from .signal_helper import setup_signal_bot_if_device_linked
-        setup_signal_bot_if_device_linked()
-
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         
