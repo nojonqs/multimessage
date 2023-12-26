@@ -34,7 +34,7 @@ class ContactListCreateView(generic.CreateView):
 
 class ContactOverview(generic.ListView):
     model = Contact
-    template_name = 'contact/contact_overview.html'
+    template_name = 'contacts/contact_overview.html'
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -44,7 +44,7 @@ class ContactOverview(generic.ListView):
     
 class GroupOverview(generic.ListView):
     model = Group
-    template_name = 'contact/group_overview.html'
+    template_name = 'contacts/group_overview.html'
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
