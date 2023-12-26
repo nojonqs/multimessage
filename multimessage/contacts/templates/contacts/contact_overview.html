@@ -1,22 +1,48 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div id="contact_accordion">
+<div class="d-flex mt-2">
+  <h2>Contacts</h2>
+  <a type="button" class="btn btn-secondary ms-auto" href="{% url 'contact:contact_create' %}">Create New Contact</a>
+</div>
+<div class="row row-cols-5 g-2">
   {% for contact in contacts_list %}
-    <div class="card">
-      <div class="card-header d-flex"
-        data-toggle="collapse"
-        data-target="#collapse_{{ contact.pk }}"
-        id="contact_{{ contact.pk }}">
-        Test Header
-      </div>
-
-      <div id="collapse_{{ contact..pk }}" class="collapse{% if forloop.first %} show{% endif %}" aria-labelledby="contact_{{ contact.pk }}" data-parent="#contact_accordion">
+    <div class="col">
+      <div class="card" id="contact_card_{{ contact.pk }}">
+        <div class="card-header d-flex"
+          id="contact_{{ contact.pk }}">
+          <h4>
+          {{ contact.display_name }}
+          </h4>
+        </div>
         <div class="card-body">
-          Test Body
+          {{ contact.phone_number }}
         </div>
         <div class="card-footer">
-          Test Footer
+          <button type="button" class="btn btn-danger mr-3" data-bs-toggle="modal" data-bs-target="#delete_modal_{{ contact.pk }}">Delete</button>
+
+          <div class="modal fade" id="delete_modal_{{ contact.pk }}" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Warning</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <p>Are you sure you want to delete Contact {{ contact }} ?</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <form method="post" action="{% url 'contact:contact_delete' contact.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger ml-auto mr-2">
+                      <!-- <i class="bi bi-trash"></i> -->
+                      Yes, Delete</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
