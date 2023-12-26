@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="contact_accordion">
+  {% for contact in contacts_list %}
+    <div class="card">
+      <div class="card-header d-flex"
+        data-toggle="collapse"
+        data-target="#collapse_{{ contact.pk }}"
+        id="contact_{{ contact.pk }}">
+        Test Header
+      </div>
+
+      <div id="collapse_{{ contact..pk }}" class="collapse{% if forloop.first %} show{% endif %}" aria-labelledby="contact_{{ contact.pk }}" data-parent="#contact_accordion">
+        <div class="card-body">
+          Test Body
+        </div>
+        <div class="card-footer">
+          Test Footer
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock content %}

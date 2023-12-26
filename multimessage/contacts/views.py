@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from django.http import HttpResponse
 from django.views import generic
 from django.urls import reverse_lazy
@@ -30,6 +31,16 @@ class ContactListCreateView(generic.CreateView):
 
     success_url = reverse_lazy('contact:index')
 
+
+class ContactOverview(generic.ListView):
+    model = Contact
+    template_name = 'contact/contact_overview.html'
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        contacts = Contact.objects.all()
+        context.update({'contact_list': contacts})
+        return context
 
 
 def send_message_view(request):
