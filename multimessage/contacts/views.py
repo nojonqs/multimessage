@@ -31,7 +31,8 @@ class ContactListCreateView(generic.CreateView):
     success_url = reverse_lazy('contact:index')
 
 
-def prepare_message(request):
+
+def send_message_view(request):
     if request.method == 'POST':
         from contacts.forms import SendMessageForm
         f = SendMessageForm(request.POST)
@@ -59,7 +60,7 @@ def prepare_message(request):
         return render(request, 'contacts/send_message.html', {'form': f})
 
 
-def setup(request):
+def setup_view(request):
     global signal_bot
     context = {
         'is_signal_linked': is_signal_linked(),
