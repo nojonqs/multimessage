@@ -6,7 +6,4 @@ class ContactsConfig(AppConfig):
     name = 'contacts'
 
     def ready(self) -> None:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        
         return super().ready()

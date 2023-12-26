@@ -22,6 +22,7 @@ def reset(request):
 def register(phone_number):
     global signal_bot
 
+    create_asyncio_eventloop_if_not_exist()
     signal_bot = SignalBot({
         'signal_service': os.environ.get("SIGNAL_SERVICE"),
         'phone_number': phone_number,
@@ -72,9 +73,17 @@ def setup_signal_bot_if_device_linked():
         register(phone_number)
 
 
+def create_asyncio_eventloop_if_not_exist():
+    if asyncio.get_event_loop() is None:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+
+
 @try_setup_signal_bot_before
 def send_message_to(recipiant: Contact, message: str):
     print(f"SEND_MESSAGE: sending message to {recipiant}: '{message}")
+    create_asyncio_eventloop_if_not_exist()
     asyncio.run(signal_bot.send(
         recipiant.phone_number.as_international, message))
 
