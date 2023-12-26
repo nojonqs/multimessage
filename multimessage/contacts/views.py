@@ -42,7 +42,7 @@ class ContactOverview(generic.ListView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         contacts = Contact.objects.all()
-        context.update({'contact_list': contacts})
+        context.update({'contacts_list': contacts})
         return context
     
 class GroupOverview(generic.ListView):
