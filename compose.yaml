@@ -31,6 +31,6 @@ services:
     ports:
       - "${SIGNALCLI_PORT}:${SIGNALCLI_PORT}"
     volumes:
-      - ./signal-cli:/home/.local/share/signal-cli:Z
+      - ./data/signal-cli:/home/.local/share/signal-cli:Z
 
 
