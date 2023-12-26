@@ -41,6 +41,15 @@ class ContactOverview(generic.ListView):
         contacts = Contact.objects.all()
         context.update({'contact_list': contacts})
         return context
+    
+class GroupOverview(generic.ListView):
+    model = Group
+    template_name = 'contact/group_overview.html'
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        groups = Group.objects.all()
+        context.update({'groups_list': groups})
 
 
 def send_message_view(request):
