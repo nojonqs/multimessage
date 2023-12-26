@@ -15,4 +15,4 @@ class Group(models.Model):
   contacts = models.ManyToManyField(Contact)
 
   def __str__(self):
-     return f"{self.display_name}"
+     return f"{self.display_name}" + ", ".join(self.contacts.all())
