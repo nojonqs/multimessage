@@ -1,7 +1,6 @@
 .venv/
 __pycache__/
 __init__.py
-signal-cli/
 static-lib/
 data/
 migrations/
