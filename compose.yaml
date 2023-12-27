@@ -20,7 +20,7 @@ services:
       - db
       - signal-cli-rest-api
     volumes:
-      - "./static-lib:/static:Z"
+      # - "./static-lib:/static:Z"
       - "./multimessage:/app:Z"
 
   signal-cli-rest-api:
