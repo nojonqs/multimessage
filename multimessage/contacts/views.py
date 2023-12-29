@@ -104,4 +104,6 @@ def setup_view(request):
 
 def fetch_group_view(request, phone_number):
     if request.method == "GET":
-        fetch_groups_of_number(phone_number)
+        groups_json = fetch_groups_of_number(phone_number)
+        ctx = {"groups_json": groups_json}
+        return render(request, "contacts/view_groups.html", context=ctx)
