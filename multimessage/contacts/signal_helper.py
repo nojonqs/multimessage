@@ -37,10 +37,12 @@ def send_message_to(recipiant: Contact, sender: str, message: str):
     print(f"SEND_MESSAGE: sending message to {recipiant}: '{message}")
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    signal_bot = SignalBot({
-        'signal_service': os.environ.get('SIGNAL_SERVICE'),
-        'phone_number': sender,
-    })
+    signal_bot = SignalBot(
+        {
+            "signal_service": os.environ.get("SIGNAL_SERVICE"),
+            "phone_number": sender,
+        }
+    )
     asyncio.run(signal_bot.send(recipiant.phone_number.as_international, message))
 
 
@@ -51,7 +53,9 @@ def sync_group(phone_number: str, group):
     # I may need to switch to running signal-cli myself in the same container as django, since it is provides
     # more functionality with less abstraction between it
     print(f"Syncing group ({group.get('id')}) {group.get('name')}")
-    res = requests.get(f"http://{os.environ.get('SIGNAL_SERVICE')}/v1/groups/{phone_number}/{group.get('id')}")
+    res = requests.get(
+        f"http://{os.environ.get('SIGNAL_SERVICE')}/v1/groups/{phone_number}/{group.get('id')}"
+    )
     return json.loads(res.content)
 
 
