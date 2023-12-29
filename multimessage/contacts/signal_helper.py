@@ -31,15 +31,6 @@ def register(phone_number):
     )
 
 
-def try_setup_signal_bot_before(predicate):
-    @wraps(predicate)
-    def func(*args, **kwargs):
-        setup_signal_bot_if_device_linked()
-        return predicate(*args, **kwargs)
-
-    return func
-
-
 class NoPhoneNumberLinked(Exception):
     pass
 
@@ -82,7 +73,6 @@ def create_asyncio_eventloop_if_not_exist():
         asyncio.set_event_loop(loop)
 
 
-@try_setup_signal_bot_before
 def send_message_to(recipiant: Contact, message: str):
     print(f"SEND_MESSAGE: sending message to {recipiant}: '{message}")
     create_asyncio_eventloop_if_not_exist()
