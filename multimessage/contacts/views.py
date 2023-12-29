@@ -7,7 +7,7 @@ from django.views import generic
 
 from .forms import ContactCreateForm, ContactListCreateForm
 from .models import Contact, Group
-from .signal_helper import is_signal_linked, send_message_to
+from .signal_helper import fetch_groups_of_number, is_signal_linked, send_message_to
 
 
 def link_device(request):
@@ -100,3 +100,8 @@ def setup_view(request):
         "is_signal_linked": is_signal_linked(),
     }
     return render(request, "contacts/signal_setup.html", context)
+
+
+def fetch_group_view(request, phone_number):
+    if request.method == "GET":
+        fetch_groups_of_number(phone_number)

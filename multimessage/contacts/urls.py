@@ -26,4 +26,9 @@ urlpatterns = [
     path("send_message/", send_message_view, name="signal_send_message"),
     path("setup/", setup_view, name="signal_setup"),
     path("link_device_qrcode/", link_device, name="signal_link_device_qrcode"),
+    path(
+        "signal/fetch_groups/<str:phone_number>/",
+        views.fetch_group_view,
+        name="signal_fetch_groups",
+    ),
 ]

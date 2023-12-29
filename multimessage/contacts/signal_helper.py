@@ -42,3 +42,11 @@ def send_message_to(recipiant: Contact, sender: str, message: str):
         'phone_number': sender,
     })
     asyncio.run(signal_bot.send(recipiant.phone_number.as_international, message))
+
+
+def fetch_groups_of_number(phone_number: str):
+    res = requests.get(
+        f"http://{os.environ.get('SIGNAL_SERVICE')}/v1/groups/{phone_number}"
+    )
+    print(res)
+    print(res.content)
