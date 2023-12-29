@@ -1,25 +1,53 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div id="group_accordion">
+<div class="d-flex mt-2">
+  <h2>Groups</h2>
+  <a type="button" class="btn btn-secondary ms-auto" href="{% url 'contact:group_create' %}">Create New Group</a>
+</div>
+<div class="row row-cols-5 g-2">
   {% for group in groups_list %}
-    <div class="card">
+  <div class="col">
+    <div class="card" id="group_card_{{ group.pk }}">
       <div class="card-header d-flex"
-        data-toggle="collapse"
-        data-target="#collapse_{{ group.pk }}"
         id="group_{{ group.pk }}">
-        Test Header
+        <h4>
+        {{ group.display_name }}
+        </h4>
       </div>
+      <div class="card-body">
+        {% for contact in group.contacts.all %}
+          <p id="{{ group.display_name }}-{{ contact.phone_number }}">{{ contact.phone_number }}</p>
+        {% endfor %}
+      </div>
+      <div class="card-footer">
+        <button type="button" class="btn btn-danger mr-3" data-bs-toggle="modal" data-bs-target="#delete_modal_{{ group.pk }}">Delete</button>
 
-      <div id="collapse_{{ group..pk }}" class="collapse{% if forloop.first %} show{% endif %}" aria-labelledby="group_{{ group.pk }}" data-parent="#group_accordion">
-        <div class="card-body">
-          Test Body
-        </div>
-        <div class="card-footer">
-          Test Footer
+        <div class="modal fade" id="delete_modal_{{ group.pk }}" role="dialog" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Warning</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>Are you sure you want to delete Group {{ group }} ?</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="{% url 'contact:group_delete' group.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger ml-auto mr-2">
+                    <!-- <i class="bi bi-trash"></i> -->
+                    Yes, Delete</button>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+  </div>
   {% endfor %}
 </div>
 {% endblock content %}
