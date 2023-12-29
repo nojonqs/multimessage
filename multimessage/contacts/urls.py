@@ -11,7 +11,6 @@ urlpatterns = [
     path(
         "", RedirectView.as_view(pattern_name="contact:contact_overview"), name="index"
     ),
-    path("<int:contact_id>/", views.detail, name="detail"),
     path("create/", views.ContactCreateView.as_view(), name="contact_create"),
     path("create_group/", views.GroupCreateView.as_view(), name="group_create"),
     path(
