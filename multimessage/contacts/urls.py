@@ -13,7 +13,7 @@ urlpatterns = [
     ),
     path("<int:contact_id>/", views.detail, name="detail"),
     path("create/", views.ContactCreateView.as_view(), name="contact_create"),
-    path("create_list/", views.ContactListCreateView.as_view(), name="list_create"),
+    path("create_group/", views.GroupCreateView.as_view(), name="group_create"),
     path(
         "overview/contacts/", views.ContactOverview.as_view(), name="contact_overview"
     ),

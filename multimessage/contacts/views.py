@@ -22,27 +22,6 @@ def detail(request, contact_id):
     return HttpResponse("Contact detail for contact with id " + str(contact_id))
 
 
-class ContactCreateView(generic.CreateView):
-    template_name = "contacts/contact_create_form.html"
-    form_class = ContactCreateForm
-    model = Contact
-
-    success_url = reverse_lazy("contact:contact_overview")
-
-
-class ContactListCreateView(generic.CreateView):
-    template_name = "contacts/contact_list_create_form.html"
-    form_class = ContactListCreateForm
-    model = Group
-
-    success_url = reverse_lazy("contact:group_overview")
-
-
-class ContactDeleteView(generic.DeleteView):
-    model = Contact
-    success_url = reverse_lazy("contact:contact_overview")
-
-
 class ContactOverview(generic.ListView):
     model = Contact
     template_name = "contacts/contact_overview.html"
@@ -54,6 +33,18 @@ class ContactOverview(generic.ListView):
         return context
 
 
+class ContactCreateView(generic.CreateView):
+    model = Contact
+    form_class = ContactCreateForm
+    template_name = "contacts/contact_create.html"
+    success_url = reverse_lazy("contact:contact_overview")
+
+
+class ContactDeleteView(generic.DeleteView):
+    model = Contact
+    success_url = reverse_lazy("contact:contact_overview")
+
+
 class GroupOverview(generic.ListView):
     model = Group
     template_name = "contacts/group_overview.html"
@@ -62,6 +53,13 @@ class GroupOverview(generic.ListView):
         context = super().get_context_data(**kwargs)
         groups = Group.objects.all()
         context.update({"groups_list": groups})
+
+
+class GroupCreateView(generic.CreateView):
+    model = Group
+    form_class = ContactListCreateForm
+    template_name = "contacts/group_create.html"
+    success_url = reverse_lazy("contact:group_overview")
 
 
 def send_message_view(request):

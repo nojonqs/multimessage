@@ -1,4 +1,4 @@
-<form method="post" action="{% url 'contact:list_create' %}">
+<form method="post" action="{% url 'contact:group_create' %}">
   {% csrf_token %}
   {{ form.as_p }}
   <input type="submit" value="Create">
