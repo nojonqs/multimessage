@@ -19,7 +19,7 @@ urlpatterns = [
     ),
     path("overview/groups/", views.GroupOverview.as_view(), name="group_overview"),
     path(
-        "delete/contant/<int:pk>/",
+        "delete/contact/<int:pk>/",
         views.ContactDeleteView.as_view(),
         name="contact_delete",
     ),
