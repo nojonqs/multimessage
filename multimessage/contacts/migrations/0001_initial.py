@@ -5,27 +5,46 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Contact',
+            name="Contact",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('display_name', models.CharField(blank=True, max_length=64)),
-                ('phone_number', phonenumber_field.modelfields.PhoneNumberField(max_length=128, region=None, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("display_name", models.CharField(blank=True, max_length=64)),
+                (
+                    "phone_number",
+                    phonenumber_field.modelfields.PhoneNumberField(
+                        max_length=128, region=None, unique=True
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ContactList',
+            name="ContactList",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('display_name', models.CharField(blank=True, max_length=64)),
-                ('contacts', models.ManyToManyField(to='contacts.contact')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("display_name", models.CharField(blank=True, max_length=64)),
+                ("contacts", models.ManyToManyField(to="contacts.contact")),
             ],
         ),
     ]
