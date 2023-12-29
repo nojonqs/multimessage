@@ -1,0 +1,3 @@
+[submodule "multimessage/wait-for-it"]
+	path = multimessage/wait-for-it
+	url = https://github.com/vishnubob/wait-for-it.git
