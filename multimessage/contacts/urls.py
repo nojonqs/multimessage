@@ -1,4 +1,5 @@
 from django.urls import path
+from django.urls import reverse_lazy
 from contacts.views import link_device, send_message_view, setup_view
 
 from django.views.generic import RedirectView
@@ -7,7 +8,9 @@ from . import views
 
 app_name = "contact"
 urlpatterns = [
-    path("", views.index, name="index"),
+    path(
+        "", RedirectView.as_view(pattern_name="contact:contact_overview"), name="index"
+    ),
     path("<int:contact_id>/", views.detail, name="detail"),
     path("create/", views.ContactCreateView.as_view(), name="contact_create"),
     path("create_list/", views.ContactListCreateView.as_view(), name="list_create"),
