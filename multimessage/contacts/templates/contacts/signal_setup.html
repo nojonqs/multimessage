@@ -1,16 +1,42 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div id="signal_link_device">
-  {% if not is_signal_linked %}
-  <a>Signal is not linked yet. Scan this QR-Code in your signal app and refresh the page afterwards.</a>
-  {% elif is_signal_linked %}
-  <a>Already linked</a>
-  {% endif %}
-  <img src="{% url 'contact:signal_link_device_qrcode' %}" alt="{% url 'contact:signal_link_device_qrcode' %}"></img>
+<div class="d-flex mt-2">
+  <h2>Signal Setup</h2>
+</div>
+<div id="signal_link_device" class="card mt-3">
+  <div id="status" class="card-header d-flex">
+    <h4 class="m-1 me-auto">Status:</h4>
+    {% if not is_signal_linked %}
+    <h5 class="m-1 text-bg-danger ps-3 pe-3 rounded-2">Not linked yet</h5>
+    {% elif is_signal_linked %}
+    <div class="rounded-2 m-1 text-bg-success">
+    <h5 class="">Already linked</h5>
+    </div>
+    {% endif %}
+  </div>
+  <div id="qr-code" class="card-body">
+    <img id="link-qrcode" src="{% url 'contact:signal_link_device_qrcode' %}" alt="{% url 'contact:signal_link_device_qrcode' %}"></img>
+    <p id="name_for_device">Name for this device: multi_message</p>
+  </div>
+
+  <div id="name_changing" class="card-footer d-flex">
+    <input id="name_input_field" value="multi_message" class="flex-grow-1">
+    <button id="name_button" type="button" class="btn btn-primary ms-3">Change Name</button>
+  </div>
 </div>
 
 {% endblock content %}
 
 {% block javascript %}
+<script type="text/javascript">
+  const textInput = document.getElementById("name_button");
+  textInput.onclick = function () {
+    const name = document.getElementById("name_input_field").value;
+    document.getElementById("name_for_device").textContent = "Name for this device: " + name;
+
+    const code = document.getElementById("link-qrcode");
+    code.src = "{% url 'contact:signal_link_device_qrcode' %}" + "?device_name=" + name;
+  };
+</script>
 {% endblock javascript %}
