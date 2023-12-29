@@ -1,5 +1,4 @@
 from django.apps import AppConfig
-import asyncio
 
 
 class ContactsConfig(AppConfig):

@@ -1,12 +1,13 @@
 from typing import Any, Dict
-from django.http import HttpResponse
-from django.views import generic
-from django.urls import reverse_lazy
-from django.shortcuts import render, redirect
+
 import phonenumbers
-from .models import Contact, Group
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+from django.views import generic
+
 from .forms import ContactCreateForm, ContactListCreateForm
-from .signal_helper import is_signal_linked, is_signal_bot_setup, send_message_to
+from .models import Contact, Group
+from .signal_helper import is_signal_bot_setup, is_signal_linked, send_message_to
 
 
 def link_device(request):

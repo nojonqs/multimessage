@@ -1,6 +1,6 @@
-from django import forms
 from contacts.models import Contact, Group
 from contacts.signal_helper import get_linked_phone_numbers
+from django import forms
 
 
 class ContactCreateForm(forms.ModelForm):

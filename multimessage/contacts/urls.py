@@ -1,7 +1,5 @@
-from django.urls import path
-from django.urls import reverse_lazy
 from contacts.views import link_device, send_message_view, setup_view
-
+from django.urls import path
 from django.views.generic import RedirectView
 
 from . import views

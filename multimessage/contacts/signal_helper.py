@@ -1,13 +1,12 @@
-from typing import Optional
-from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
-from signalbot import SignalBot
 import asyncio
-import os
 import json
+import os
+from typing import Optional
+
 import requests
-from functools import wraps
-from contacts.models import Contact, Group
+from contacts.models import Contact
+from django.shortcuts import redirect
+from signalbot import SignalBot
 
 signal_bot: Optional[SignalBot] = None
 
