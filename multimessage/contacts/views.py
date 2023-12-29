@@ -53,6 +53,7 @@ class GroupOverview(generic.ListView):
         context = super().get_context_data(**kwargs)
         groups = Group.objects.all()
         context.update({"groups_list": groups})
+        return context
 
 
 class GroupCreateView(generic.CreateView):
