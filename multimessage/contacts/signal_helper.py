@@ -63,7 +63,7 @@ def get_linked_phone_numbers():
 def is_signal_linked():
     res = requests.get(f"http://{os.environ.get('SIGNAL_SERVICE')}/v1/accounts")
     accounts = json.loads(res.content)
-    return len(accounts) == 1
+    return len(accounts) >= 1
 
 
 def is_signal_bot_setup():
