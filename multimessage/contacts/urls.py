@@ -1,5 +1,5 @@
 from django.urls import path
-from contacts.views import send_message_view, setup_view
+from contacts.views import link_device, send_message_view, setup_view
 
 from django.views.generic import RedirectView
 
@@ -22,11 +22,5 @@ urlpatterns = [
     ),
     path("send_message/", send_message_view, name="signal_send_message"),
     path("setup/", setup_view, name="signal_setup"),
-    path(
-        "link_device_qrcode/",
-        RedirectView.as_view(
-            url="http://127.0.0.1:8080/v1/qrcodelink/?device_name=multi_message"
-        ),
-        name="signal_link_device_qrcode",
-    ),
+    path("link_device_qrcode/", link_device, name="signal_link_device_qrcode"),
 ]
