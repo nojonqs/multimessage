@@ -63,6 +63,11 @@ class GroupCreateView(generic.CreateView):
     success_url = reverse_lazy("contact:group_overview")
 
 
+class GroupDeleteView(generic.DeleteView):
+    model = Group
+    success_url = reverse_lazy("contact:group_overview")
+
+
 def send_message_view(request):
     if request.method == "POST":
         from contacts.forms import SendMessageForm

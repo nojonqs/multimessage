@@ -23,6 +23,9 @@ urlpatterns = [
         views.ContactDeleteView.as_view(),
         name="contact_delete",
     ),
+    path(
+        "delete/group/<int:pk>/", views.GroupDeleteView.as_view(), name="group_delete"
+    ),
     path("send_message/", send_message_view, name="signal_send_message"),
     path("setup/", setup_view, name="signal_setup"),
     path("link_device_qrcode/", link_device, name="signal_link_device_qrcode"),
