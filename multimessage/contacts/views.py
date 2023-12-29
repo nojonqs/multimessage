@@ -2,7 +2,7 @@ from typing import Any, Dict
 from django.http import HttpResponse
 from django.views import generic
 from django.urls import reverse_lazy
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Contact, Group
 from .forms import ContactCreateForm, ContactListCreateForm
 from .signal_helper import is_signal_linked, is_signal_bot_setup, send_message_to
@@ -10,6 +10,11 @@ from .signal_helper import is_signal_linked, is_signal_bot_setup, send_message_t
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
+
+
+def link_device(request):
+    name = request.GET.get("device_name") or "multi_message"
+    return redirect(f"http://127.0.0.1:8080/v1/qrcodelink/?device_name={name}")
 
 
 def detail(request, contact_id):
