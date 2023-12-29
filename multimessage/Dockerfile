@@ -10,6 +10,9 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK 1
 # for building packages like multidict
 RUN apk add alpine-sdk
 
+# needed to run wait-for-it.sh to wait for healthy db on startup
+RUN apk add --no-cache bash
+
 # install python packages
 COPY requirements.txt /app
 
