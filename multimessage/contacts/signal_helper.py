@@ -73,7 +73,12 @@ def create_asyncio_eventloop_if_not_exist():
         asyncio.set_event_loop(loop)
 
 
-def send_message_to(recipiant: Contact, message: str):
+def send_message_to(recipiant: Contact, sender: str, message: str):
     print(f"SEND_MESSAGE: sending message to {recipiant}: '{message}")
-    create_asyncio_eventloop_if_not_exist()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    signal_bot = SignalBot({
+        'signal_service': os.environ.get('SIGNAL_SERVICE'),
+        'phone_number': sender,
+    })
     asyncio.run(signal_bot.send(recipiant.phone_number.as_international, message))

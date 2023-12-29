@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.views import generic
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
+import phonenumbers
 from .models import Contact, Group
 from .forms import ContactCreateForm, ContactListCreateForm
 from .signal_helper import is_signal_linked, is_signal_bot_setup, send_message_to
@@ -75,15 +76,17 @@ def send_message_view(request):
             )
 
         message = f.cleaned_data["message"]
+        sender = f.cleaned_data["sender"]
+        assert phonenumbers.is_valid_number(phonenumbers.parse(sender))
 
         for recipiant in f.cleaned_data["single_recipiants"]:
             print(f"SEND_MESSAGE: sending message to {recipiant}: '{message}'")
-            send_message_to(recipiant, message)
+            send_message_to(recipiant, sender, message)
 
         for group in f.cleaned_data["group_recipiants"]:
             group: Group
             for recipiant in group.contacts.all():
-                send_message_to(recipiant, message)
+                send_message_to(recipiant, sender, message)
 
         return render(request, "contacts/send_message.html", {"form": f})
 

@@ -21,6 +21,13 @@ def get_linked_phone_numbers_as_dict():
 
 
 class SendMessageForm(forms.Form):
+    # TODO: make sender be a ModelChoiceField. This gives us a bit more
+    # confidence in its existence and we do not have the overhead of
+    # fetching all the connected phone numbers.
+    # To do this, we need a model for connected phone numbers, create
+    # them during signal setup and check for if they are still correct.
+    # The last part is a big headache I think, so we work with strings
+    # for now
     sender = forms.ChoiceField(choices=get_linked_phone_numbers_as_dict)
     message = forms.CharField(max_length=2048, widget=forms.Textarea)
     single_recipiants = forms.ModelMultipleChoiceField(
