@@ -1,5 +1,7 @@
 set -x
 
+signal-cli daemon --socket &
+
 if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]
 then
     ./wait-for-it/wait-for-it.sh "${DB_HOST}:${DB_PORT}" --timeout=300
