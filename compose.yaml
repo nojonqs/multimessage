@@ -18,19 +18,8 @@ services:
       - .env
     depends_on:
       - db
-      - signal-cli-rest-api
     volumes:
       # - "./static-lib:/static:Z"
       - "./multimessage:/app:Z"
-
-  signal-cli-rest-api:
-    image: bbernhard/signal-cli-rest-api:latest
-    environment:
-      - MODE=json-rpc #supported modes: json-rpc, native, normal
-      #- AUTO_RECEIVE_SCHEDULE=0 22 * * * #enable this parameter on demand (see description below)
-    ports:
-      - "${SIGNALCLI_PORT}:${SIGNALCLI_PORT}"
-    volumes:
-      - ./data/signal-cli:/home/.local/share/signal-cli:Z
 
 
