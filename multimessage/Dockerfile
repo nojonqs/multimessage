@@ -13,6 +13,9 @@ RUN apk add alpine-sdk
 # needed to run wait-for-it.sh to wait for healthy db on startup
 RUN apk add --no-cache bash
 
+# for signal related stuff
+RUN apk add signal-cli
+
 # install python packages
 COPY requirements.txt /app
 
