@@ -18,7 +18,7 @@ def recvall(sock):
     while True:
         chunk = sock.recv(MAX_MSG_SIZE)
         fragments.append(chunk)
-        if len(chunk) < MAX_MSG_SIZE:
+        if chunk[-1:] == b"\n":
             break
     return b''.join(fragments)
 
