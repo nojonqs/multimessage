@@ -1,5 +1,5 @@
 from contacts.models import Contact, Group
-from contacts.signal_helper import get_linked_phone_numbers
+from contacts.signal_helper import signal_cli_listAccounts
 from django import forms
 
 
@@ -16,7 +16,7 @@ class ContactListCreateForm(forms.ModelForm):
 
 
 def get_linked_phone_numbers_as_dict():
-    d = {n: n for n in get_linked_phone_numbers()}
+    d = {n: n for n in signal_cli_listAccounts()}
     return d
 
 
