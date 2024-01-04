@@ -1,6 +1,6 @@
 set -x
 
-signal-cli daemon --socket &
+signal-cli -v --config $SIGNAL_CLI_CONFIG daemon --socket $SIGNAL_CLI_SOCKET &
 
 if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]
 then
