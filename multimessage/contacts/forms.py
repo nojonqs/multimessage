@@ -30,12 +30,12 @@ class SendMessageForm(forms.Form):
     # for now
     sender = forms.ChoiceField(choices=get_linked_phone_numbers_as_dict)
     message = forms.CharField(max_length=4096, widget=forms.Textarea)
-    single_recipiants = forms.ModelMultipleChoiceField(
+    single_recipients = forms.ModelMultipleChoiceField(
         queryset=Contact.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )
-    group_recipiants = forms.ModelMultipleChoiceField(
+    group_recipients = forms.ModelMultipleChoiceField(
         queryset=Group.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         required=False,
