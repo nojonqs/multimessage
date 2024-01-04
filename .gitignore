@@ -3,3 +3,6 @@ __pycache__/
 static-lib/
 data/
 .vscode/
+signal-cli/
+signal-cli-logs/
+db.sqlite3
