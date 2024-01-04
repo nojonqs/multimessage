@@ -29,7 +29,7 @@ class SendMessageForm(forms.Form):
     # The last part is a big headache I think, so we work with strings
     # for now
     sender = forms.ChoiceField(choices=get_linked_phone_numbers_as_dict)
-    message = forms.CharField(max_length=2048, widget=forms.Textarea)
+    message = forms.CharField(max_length=4096, widget=forms.Textarea)
     single_recipiants = forms.ModelMultipleChoiceField(
         queryset=Contact.objects.all(),
         widget=forms.CheckboxSelectMultiple,
