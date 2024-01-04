@@ -19,7 +19,7 @@ services:
     depends_on:
       - db
     volumes:
-      # - "./static-lib:/static:Z"
+      - "./data/${SIGNAL_CLI_CONFIG}:/app/${SIGNAL_CLI_CONFIG}:Z"
       - "./multimessage:/app:Z"
 
 
