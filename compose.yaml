@@ -20,6 +20,7 @@ services:
       - db
     volumes:
       - "./data/${SIGNAL_CLI_CONFIG}:/app/${SIGNAL_CLI_CONFIG}:Z"
+      - "./data/${SIGNAL_CLI_LOGS}:/app/${SIGNAL_CLI_LOGS}:Z"
       - "./multimessage:/app:Z"
 
 
