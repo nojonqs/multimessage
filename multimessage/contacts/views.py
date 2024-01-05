@@ -3,18 +3,20 @@ from itertools import chain
 from typing import Any, Dict, List
 
 import phonenumbers
-from django.http import HttpResponse
+from contacts.forms import ContactCreateForm, ContactListCreateForm
+from contacts.models import Contact, Group
+from contacts.signal_helper import (convert_uri_to_qrcode, get_link_qrcode,
+                                    get_contact_with_uuid, is_signal_linked,
+                                    signal_cli_finishLink,
+                                    signal_cli_listContacts,
+                                    signal_cli_listGroups, signal_cli_send,
+                                    signal_cli_startLink)
+from contacts.types import SignalGroup
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.template import loader
 from django.urls import reverse_lazy
 from django.views import generic
-
-from .forms import ContactCreateForm, ContactListCreateForm
-from .models import Contact, Group
-from .signal_helper import (convert_uri_to_qrcode, get_link_qrcode,
-                            is_signal_linked, signal_cli_finishLink,
-                            signal_cli_listContacts, signal_cli_listGroups,
-                            signal_cli_send, signal_cli_startLink)
 
 
 class ContactOverview(generic.ListView):
@@ -150,8 +152,38 @@ def setup_view(request):
 def fetch_group_view(request, phone_number):
     if request.method == "GET":
         groups_json = signal_cli_listGroups(phone_number)
-        ctx = {"groups_json": groups_json}
+        ctx = {"groups_json": groups_json, "account": phone_number}
         return render(request, "contacts/view_groups.html", context=ctx)
+
+
+def import_group_from_signalcli(request, account: str, signal_group_id: str):
+    groups: List[SignalGroup] = signal_cli_listGroups(account, signal_group_id)
+    if len(groups) == 0:
+        return HttpResponseBadRequest()
+    
+    assert len(groups) == 1
+    group = groups[0]
+
+    contact_models = []
+    for member in group["members"]:
+        assert member["uuid"]
+        m = get_contact_with_uuid(member["uuid"], account)
+        number = m["number"]
+        uuid = m["uuid"]
+        name = m["profile"]["givenName"]
+        
+        if Contact.objects.filter(uuid=uuid).exists():
+            c = Contact.objects.get(uuid=uuid)
+        else:
+            c = Contact.objects.create(display_name=name, phone_number=number, uuid=uuid)
+        contact_models.append(c)
+    
+    display_name = group["name"]
+    group_model = Group.objects.create(display_name=display_name)
+    group_model.contacts.add(*contact_models)
+
+    print(f"Created group model {group_model} from group json {group}")
+
 
 # TEST VIEWS
 

@@ -1,5 +1,6 @@
-from contacts.views import (get_uuid_for_number, link_device, list_contacts,
-                            send_message_view, setup_view)
+from contacts.views import (get_uuid_for_number, import_group_from_signalcli,
+                            link_device, list_contacts, send_message_view,
+                            setup_view)
 from django.urls import path
 from django.views.generic import RedirectView
 
@@ -33,5 +34,6 @@ urlpatterns = [
         name="signal_fetch_groups",
     ),
     path("list_contacts/", list_contacts, name="listContacts"),
-    path("uuid/<str:phone_number>", get_uuid_for_number),
+    path("uuid/<str:phone_number>/", get_uuid_for_number),
+    path("import_group_from_signalcli/<str:account>/<path:signal_group_id>/", import_group_from_signalcli, name="import_group_from_signalcli")
 ]
