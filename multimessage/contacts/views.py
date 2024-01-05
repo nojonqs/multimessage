@@ -114,20 +114,6 @@ def link_device(request):
     })
 
 
-class HttpResponseWithFuncAfter(HttpResponse):
-    # We use this HttpResponse subclass to do communicate the finishLink
-    # method to the signal socket after the http response was sent to
-    # the client
-    def __init__(self, *args, func, ctx, **kwargs):
-        self.func = func
-        self.ctx = ctx
-        super().__init__(*args, **kwargs)
-
-    def close(self):
-        super().close()
-        self.func(**self.ctx)
-
-
 def setup_view(request):
     device_name = request.GET.get("device_name") or "multi_message"
     qr_code_uri = signal_cli_startLink(device_name)
@@ -141,8 +127,6 @@ def setup_view(request):
         "qr_code_bytes": qr_code_bytes,
     }
 
-    # template = loader.get_template("contacts/signal_setup.html")
-    # return HttpResponseWithFuncAfter(template.render(context, request), func=on_startlink_qrcode_send, ctx={"uri": qr_code_uri, "device_name": device_name})
     thread = threading.Thread(target=signal_cli_finishLink, kwargs={"uri": qr_code_uri, "device_name": device_name})
     thread.daemon = True
     thread.start()

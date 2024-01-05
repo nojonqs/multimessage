@@ -137,6 +137,7 @@ def signal_cli_send(recipients: [Contact], account: str, message: str):
         "id": f"send_{account}_{uuids}"
     }
     res = send_data_to_socket(data)
+    return res
     # signal.sendMessage(message=message, attachments=[], recipient=recipiant.phone_number.as_international)
 
 
@@ -161,7 +162,7 @@ def signal_cli_listContacts(recipients: [str], account: str = None):
 
 
 
-def signal_cli_listGroups(account: str) -> List[SignalGroup]:
+def signal_cli_listGroups(account: str, group_id: str = None) -> List[SignalGroup]:
     # https://github.com/AsamK/signal-cli/blob/master/man/signal-cli.1.adoc#listgroups
     data: SignalCliJsonRpcRequest = {
         "jsonrpc": "2.0",
@@ -171,5 +172,23 @@ def signal_cli_listGroups(account: str) -> List[SignalGroup]:
         },
         "id": f"listGroups_{account}",
     }
+    if group_id is not None:
+        data["params"]["groupId"] = group_id
+    
     res: List[SignalGroup] = send_data_to_socket(data)
     return res
+
+
+def get_contact_with_uuid(uuid: str, account: str) -> SignalContact:
+    contacts = signal_cli_listContacts([uuid], account)
+    assert len(contacts) == 1
+    contact = contacts[0]
+    return contact
+
+
+def get_uuid_for_number(phone_number: str) -> str:
+    contacts = signal_cli_listContacts([phone_number])
+    assert len(contacts) == 1
+    contact = contacts[0]
+    print(contact)
+    return contact["uuid"]
