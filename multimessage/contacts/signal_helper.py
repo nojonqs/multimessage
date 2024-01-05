@@ -36,7 +36,7 @@ def send_data_to_socket(data: SignalCliJsonRpcRequest):
         res = json.loads(recvall(s))
         print(f"SIGNAL_SOCKET_RECV: {res}")
 
-        assert res["id"] == data["id"]
+        assert res.get("id") == data["id"] or res.get("method") == "receive"
 
         if "error" in res:
             print("[ERROR]", res["error"]["code"], res["error"]["message"])
