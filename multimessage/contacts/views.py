@@ -80,22 +80,25 @@ def send_message_view(request):
         sender = f.cleaned_data["sender"]
         assert phonenumbers.is_valid_number(phonenumbers.parse(sender))
 
-        single_recipients: List[Contact] = f.cleaned_data["single_recipients"] or []
-        group_recipients: List[Group] = f.cleaned_data["group_recipients"] or []
+        single_recipients: List[Contact] = f.cleaned_data["single_recipients"]
+        group_recipients: List[Group] = f.cleaned_data["group_recipients"]
 
         # for recipiant in f.cleaned_data["single_recipiants"]:
         #     print(f"SEND_MESSAGE: sending message to {recipiant}: '{message}'")
         #     send_message_to(recipiant, sender, message)
-        signal_cli_send(single_recipients, sender, message)
+        results_contacts = {}
+        if len(single_recipients):
+            results_contacts = signal_cli_send(single_recipients, sender, message)
 
         # for group in f.cleaned_data["group_recipiants"]:
         #     group: Group
         #     for recipiant in group.contacts.all():
         #         send_message_to(recipiant, sender, message)
         # flatten list of contacts 
+        results_groups = {}
         numbers_in_groups = list(chain.from_iterable(map(lambda group: list(group.contacts.all()), group_recipients)))
-        print(type(numbers_in_groups))
-        signal_cli_send(numbers_in_groups, sender, message)
+        if len(numbers_in_groups):
+            results_groups = signal_cli_send(numbers_in_groups, sender, message)
 
         return render(request, "contacts/send_message.html", {"form": f})
 
