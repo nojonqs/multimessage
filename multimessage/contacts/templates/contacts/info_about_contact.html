@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row mt-5">
+    <div class="col">
+        <form method="post" action="{% url 'contact:info_about_contact' %}">
+            {% csrf_token %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Search for contact details by phone number or signal uuid</h5>
+                    <p class="card-text"></p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        {{ form.phone_number.errors }}
+                        <div class="form-floating">
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" placeholder="0123 456789" value="">
+                            <label for="phone_number">Phone number</label>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        {{ form.uuid.errors }}
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="uuid" name="uuid" placeholder="xxxx-xxxx-xxxx-xxxx" value="">
+                            <label for="uuid">uuid</label>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <input type="submit" class="btn btn-primary" value="Search">
+                    </li>
+                </ul>
+            </div>
+        </form>
+    </div>
+    <div class="col">
+        {% for contact in contacts %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">{{ contact.profile.givenName }}</h5>
+                <p class="card-text">{{ contact.profile.about }}</p>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <div class="form-floating">
+                        <input type="tel" class="form-control placeholder" id="numberDisabled" placeholder="0123 456789" value="{{ contact.number }}" disabled>
+                        <label for="numberDisabled">Phone number</label>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="uuidDisabled" placeholder="xxxx-xxxx-xxxx-xxxx" value="{{ contact.uuid }}" disabled>
+                        <label for="uuidDisabled">uuid</label>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        {% empty %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title placeholder-wave">
+                    <span class="placeholder col-4"></span>
+                </h5>
+                <p class="placeholder-wave">
+                    <span class="placeholder col-7"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-6"></span>
+                    <span class="placeholder col-8"></span>
+                </p>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <p class="placeholder-wave">
+                        <span class="placeholder col-7"></span>
+                    </p>
+                </li>
+                <li class="list-group-item">
+                    <p class="placeholder-wave">
+                        <span class="placeholder col-7"></span>
+                    </p>
+                </li>
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

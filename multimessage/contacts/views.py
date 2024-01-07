@@ -1,18 +1,27 @@
-from typing import Any, Dict
+import threading
+from itertools import chain
+from typing import Any, Dict, List, Optional
 
 import phonenumbers
+from contacts.forms import (ContactCreateForm, ContactInfoForm,
+                            ContactListCreateForm, SendMessageForm)
+from contacts.models import Contact, Group
+from contacts.signal_helper import (convert_uri_to_qrcode,
+                                    get_contact_with_phonenumber,
+                                    get_contact_with_uuid, get_link_qrcode,
+                                    is_signal_linked, signal_cli_finishLink,
+                                    signal_cli_listContacts,
+                                    signal_cli_listGroups,
+                                    signal_cli_listIdentities, signal_cli_send,
+                                    signal_cli_sendSyncRequest,
+                                    signal_cli_startLink)
+from contacts.types import SignalContact, SignalGroup
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
+from django.template import loader
 from django.urls import reverse_lazy
 from django.views import generic
-
-from .forms import ContactCreateForm, ContactListCreateForm
-from .models import Contact, Group
-from .signal_helper import fetch_groups_of_number, is_signal_linked, send_message_to
-
-
-def link_device(request):
-    name = request.GET.get("device_name") or "multi_message"
-    return redirect(f"http://127.0.0.1:8080/v1/qrcodelink/?device_name={name}")
+from phonenumber_field.phonenumber import PhoneNumber
 
 
 class ContactOverview(generic.ListView):
@@ -76,14 +85,25 @@ def send_message_view(request):
         sender = f.cleaned_data["sender"]
         assert phonenumbers.is_valid_number(phonenumbers.parse(sender))
 
-        for recipiant in f.cleaned_data["single_recipiants"]:
-            print(f"SEND_MESSAGE: sending message to {recipiant}: '{message}'")
-            send_message_to(recipiant, sender, message)
+        single_recipients: List[Contact] = f.cleaned_data["single_recipients"]
+        group_recipients: List[Group] = f.cleaned_data["group_recipients"]
 
-        for group in f.cleaned_data["group_recipiants"]:
-            group: Group
-            for recipiant in group.contacts.all():
-                send_message_to(recipiant, sender, message)
+        # for recipiant in f.cleaned_data["single_recipiants"]:
+        #     print(f"SEND_MESSAGE: sending message to {recipiant}: '{message}'")
+        #     send_message_to(recipiant, sender, message)
+        results_contacts = {}
+        if len(single_recipients):
+            results_contacts = signal_cli_send(single_recipients, sender, message)
+
+        # for group in f.cleaned_data["group_recipiants"]:
+        #     group: Group
+        #     for recipiant in group.contacts.all():
+        #         send_message_to(recipiant, sender, message)
+        # flatten list of contacts 
+        results_groups = {}
+        numbers_in_groups = list(chain.from_iterable(map(lambda group: list(group.contacts.all()), group_recipients)))
+        if len(numbers_in_groups):
+            results_groups = signal_cli_send(numbers_in_groups, sender, message)
 
         return render(request, "contacts/send_message.html", {"form": f})
 
@@ -94,16 +114,121 @@ def send_message_view(request):
         return render(request, "contacts/send_message.html", {"form": f})
 
 
+def link_device(request):
+    uri = request.GET.get("qr_code_uri")
+    data = convert_uri_to_qrcode(uri)
+    return HttpResponse(data, headers={
+        "Content-Type": "image/png"
+    })
+
+
 def setup_view(request):
-    global signal_bot
+    device_name = request.GET.get("device_name") or "multi_message"
+    qr_code_uri = signal_cli_startLink(device_name)
+    qr_code_bytes = convert_uri_to_qrcode(qr_code_uri).decode()
+    # print(qr_code_image)
+
     context = {
         "is_signal_linked": is_signal_linked(),
+        "device_name": device_name,
+        "qr_code_uri": qr_code_uri,
+        "qr_code_bytes": qr_code_bytes,
     }
+
+    thread = threading.Thread(target=signal_cli_finishLink, kwargs={"uri": qr_code_uri, "device_name": device_name})
+    thread.daemon = True
+    thread.start()
     return render(request, "contacts/signal_setup.html", context)
 
 
 def fetch_group_view(request, phone_number):
     if request.method == "GET":
-        groups_json = fetch_groups_of_number(phone_number)
-        ctx = {"groups_json": groups_json}
+        groups_json = signal_cli_listGroups(phone_number)
+        ctx = {"groups_json": groups_json, "account": phone_number}
         return render(request, "contacts/view_groups.html", context=ctx)
+
+
+def import_group_from_signalcli(request, account: str, signal_group_id: str):
+    groups: List[SignalGroup] = signal_cli_listGroups(account, signal_group_id)
+    if len(groups) == 0:
+        return HttpResponseBadRequest()
+    
+    assert len(groups) == 1
+    group = groups[0]
+
+    contact_models = []
+    for member in group["members"]:
+        assert member["uuid"]
+        m = get_contact_with_uuid(member["uuid"], account)
+        number = m["number"]
+        uuid = m["uuid"]
+        name = m["profile"]["givenName"]
+        
+        if Contact.objects.filter(uuid=uuid).exists():
+            c = Contact.objects.get(uuid=uuid)
+        else:
+            c = Contact.objects.create(display_name=name, phone_number=number, uuid=uuid)
+        contact_models.append(c)
+    
+    display_name = group["name"]
+    group_model = Group.objects.create(display_name=display_name)
+    group_model.contacts.add(*contact_models)
+
+    print(f"Created group model {group_model} from group json {group}")
+
+
+def sync_contacts_groups_from_primarydevice(request, account: str):
+    signal_cli_sendSyncRequest(account)
+
+def list_identities_view(request, account: str):
+    signal_cli_listIdentities(account)
+
+
+# TEST VIEWS
+
+def info_about_contact(request):
+    if request.method == "GET":
+        form = ContactInfoForm()
+        request.session["searched_contacts"] = []
+        contacts = request.session.get("searched_contacts") or []
+        return render(request, "contacts/info_about_contact.html", {"form": form, "contacts": contacts})
+
+    if request.method == "POST":
+        form = ContactInfoForm(request.POST)
+        if not form.is_valid():
+            contacts = request.session.get("searched_contacts") or []
+            return render(request, "contacts/info_about_contact.html", {"form": form, "contacts": contacts})
+
+        phone_number: Optional[PhoneNumber] = form.cleaned_data["phone_number"] or None
+        uuid: str = form.cleaned_data["uuid"] or None
+        account: str = form.cleaned_data["account"] or None
+        print(f"INFO: Account is {account}")
+        
+        # we assert this since the form should take care of that
+        assert phone_number or uuid
+
+        if uuid:
+            contact: SignalContact = get_contact_with_uuid(uuid, "**Phone_number**")
+        if phone_number:
+            contact: SignalContact = get_contact_with_phonenumber(phone_number.as_international, account)
+        
+        contacts: List[SignalContact] = request.session.get("searched_contacts") or []
+        
+        contacts = [c for c in contacts if c["uuid"] != contact["uuid"]]
+        
+        contacts.insert(0, contact)
+        request.session["searched_contacts"] = contacts
+
+        return render(request, "contacts/info_about_contact.html", {"form": form, "contacts": contacts})
+
+
+def list_contacts(request):
+    return HttpResponse(signal_cli_listContacts(["**Phone_number**", "**Phone_number**"], "**Phone_number**"))
+
+
+def get_uuid_for_number(request, phone_number: str):
+    res: List[SignalContact] = signal_cli_listContacts([phone_number])
+    assert len(res) == 1
+    contact: SignalContact = res[0]
+
+    return HttpResponse(contact["uuid"])

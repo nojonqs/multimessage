@@ -14,12 +14,12 @@
     {% endif %}
   </div>
   <div id="qr-code" class="card-body">
-    <img id="link-qrcode" src="{% url 'contact:signal_link_device_qrcode' %}" alt="{% url 'contact:signal_link_device_qrcode' %}"></img>
-    <p id="name_for_device">Name for this device: multi_message</p>
+    <img id="link-qrcode" src="data:image/png;base64,{{ qr_code_bytes }}" width="300" height="auto"></img>
+    <p id="name_for_device">Name for this device: {{ device_name }}</p>
   </div>
 
   <div id="name_changing" class="card-footer d-flex">
-    <input id="name_input_field" value="multi_message" class="flex-grow-1">
+    <input id="name_input_field" value="{{ device_name }}" class="flex-grow-1">
     <button id="name_button" type="button" class="btn btn-primary ms-3">Change Name</button>
   </div>
 </div>
@@ -31,10 +31,9 @@
   const textInput = document.getElementById("name_button");
   textInput.onclick = function () {
     const name = document.getElementById("name_input_field").value;
-    document.getElementById("name_for_device").textContent = "Name for this device: " + name;
-
-    const code = document.getElementById("link-qrcode");
-    code.src = "{% url 'contact:signal_link_device_qrcode' %}" + "?device_name=" + name;
+    var baseUrl = window.location.href.split("?")[0];
+    var newUrl = baseUrl + "?device_name=" + name;
+    window.location.href = newUrl;
   };
 </script>
 {% endblock javascript %}

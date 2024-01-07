@@ -1,32 +1,86 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div id="search-filter-container" class="mt-3 mb-4 d-flex form-floating">
+    <input type="search" id="group_search_bar" name="" onkeyup="filterGroups(event)" class="form-control"
+        placeholder="Search By Name..." />
+    <label for="group_search_bar">Search by name...</label>
+</div>
+<div class="hr"></div>
 
-<div id="groups_container">
-{% for group in groups_json %}
-    <div class="card">
-        <div class="card-header">
-            <h5>{{ group.name }}</h5>
-        </div>
-        <div class="card-body">
-            <div id="group_{{ group.name }}_admins">
-                <h6>Admins</h6>
-                {% for admin in group.admins %}
-                <div id="group_{{ group.name }}_admin_{{ admin }}">
-                    {{ admin }}
+<div id="groups_container" class="accordion">
+    {% for group in groups_json %}
+    <div class="single_group_container accordion-item mb-4">
+        <div class="accordion-header">
+            <div class="group_name accordion-button d-flex flex-fill {% if not forloop.first %} collapsed{% endif %}"
+                type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ forloop.counter }}"
+                aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+                aria-controls="collapse_{{ forloop.counter }}">
+                <div class="accordion-header-text d-flex flex-row">
+                    <h5 class="me-auto">
+                        {{ group.name }}
+                    </h5>
                 </div>
-                {% endfor %}
             </div>
-            <div id="group_{{ group.name }}_members">
-                <h6>Member</h6>
-                {% for member in group.members %}
-                    <div id="group_{{ group.name }}_member_{{ member }}">
-                        {{ member }}
+        </div>
+        <div id="collapse_{{ forloop.counter }}"
+            class="accordion-collapse collapse{% if forloop.first %} show{% endif %}">
+            <div class="accordion-body">
+                <div class="d-flex flex-column">
+
+                    <div id="group_buttons_{{ forloop.counter }}" class="me-5">
+                        <form action="{% url 'contact:import_group_from_signalcli' account group.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" id="group_add_{{ forloop.counter }}"
+                                class="btn btn-primary">Add</button>
+                        </form>
+
                     </div>
-                {% endfor %}
+                    <div id="group_details_{{ forloop.counter }}">
+                        <div id="group_{{ group.name }}_admins">
+                            <h6>Admins</h6>
+                            {% for admin in group.admins %}
+                            <div id="group_{{ group.name }}_admin_{{ admin }}">
+                                {{ admin }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="hr"></div>
+                        <div id="group_{{ group.name }}_members">
+                            <h6>Member</h6>
+                            {% for member in group.members %}
+                            <div id="group_{{ group.name }}_member_{{ member }}">
+                                {{ member }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-{% endfor %}
+    {% endfor %}
 </div>
 {% endblock content %}
+
+{% block javascript %}
+<script type="text/javascript">
+    function filterGroups(event) {
+        let input = event.target.value.toLowerCase();
+        let x = document.querySelectorAll(".single_group_container");
+        x.forEach((item) => {
+            let cardheader = item.getElementsByClassName("accordion-header")[0];
+            // console.log(cardheader);
+            let group_name = cardheader.getElementsByClassName("group_name")[0];
+            // console.log(group_name);
+
+            if (!group_name.innerText.toLowerCase().includes(input)) {
+                console.log("hiding group " + group_name.innerText);
+                item.classList.add("visually-hidden");
+            } else {
+                item.classList.remove("visually-hidden");
+            }
+        });
+    }
+</script>
+{% endblock javascript %}
