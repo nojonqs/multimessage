@@ -177,6 +177,13 @@ def import_group_from_signalcli(request, account: str, signal_group_id: str):
     print(f"Created group model {group_model} from group json {group}")
 
 
+def sync_contacts_groups_from_primarydevice(request, account: str):
+    signal_cli_sendSyncRequest(account)
+
+def list_identities_view(request, account: str):
+    signal_cli_listIdentities(account)
+
+
 # TEST VIEWS
 
 def info_about_contact(request):

@@ -179,6 +179,36 @@ def signal_cli_listGroups(account: str, group_id: str = None) -> List[SignalGrou
     return res
 
 
+def signal_cli_listIdentities(account: str, recipient: str = None):
+    # https://github.com/AsamK/signal-cli/blob/master/man/signal-cli.1.adoc#listidentities
+    data: SignalCliJsonRpcRequest = {
+        "jsonrpc": "2.0",
+        "method": "listIdentities",
+        "params": {
+            "account": account,
+        },
+        "id": f"listIdentities_{account}",
+    }
+    if recipient is not None:
+        data["params"]["number"] = recipient
+    
+    res = send_data_to_socket(data)
+
+
+
+def signal_cli_sendSyncRequest(account: str):
+    # https://github.com/AsamK/signal-cli/blob/master/man/signal-cli.1.adoc#sendsyncrequest
+    data: SignalCliJsonRpcRequest = {
+        "jsonrpc": "2.0",
+        "method": "sendSyncRequest",
+        "params": {
+            "account": account
+        },
+        "id": f"syncRequest_{account}"
+    }
+    send_data_to_socket(data)
+
+
 def get_contact_with_uuid(uuid: str, account: str) -> SignalContact:
     contacts = signal_cli_listContacts([uuid], account)
     assert len(contacts) == 1
