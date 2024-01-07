@@ -4,6 +4,7 @@ set -o allexport
 source ${SCRIPT_DIR}/../.env
 set +o allexport
 source ${SCRIPT_DIR}/../.venv/bin/activate
+pip install -r requirements_dev.txt
 
 signal-cli --config "signal-cli/" -v daemon --socket $SIGNAL_CLI_SOCKET &
 

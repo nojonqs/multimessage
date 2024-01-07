@@ -24,9 +24,9 @@ RUN apt-get --assume-yes install signal-cli-native signal-cli-service
 RUN apt-get --assume-yes install libcairo2-dev libgirepository1.0-dev
 
 # install python packages
-COPY requirements.txt /app
+COPY requirements_prod.txt /app
 
-RUN python3 -m pip install -r requirements.txt --no-cache-dir
+RUN python3 -m pip install -r requirements_prod.txt --no-cache-dir
 
 # copy source code
 COPY . /app
