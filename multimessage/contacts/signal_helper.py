@@ -186,6 +186,13 @@ def get_contact_with_uuid(uuid: str, account: str) -> SignalContact:
     return contact
 
 
+def get_contact_with_phonenumber(phone_number: str, account: str) -> SignalContact:
+    contacts = signal_cli_listContacts([phone_number], account)
+    assert len(contacts) == 1
+    contact = contacts[0]
+    return contact
+
+
 def get_uuid_for_number(phone_number: str) -> str:
     contacts = signal_cli_listContacts([phone_number])
     assert len(contacts) == 1

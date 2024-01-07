@@ -1,6 +1,9 @@
+from typing import Any, Dict
+
 from contacts.models import Contact, Group
 from contacts.signal_helper import signal_cli_listAccounts
 from django import forms
+from phonenumber_field.formfields import PhoneNumberField
 
 
 class ContactCreateForm(forms.ModelForm):
@@ -40,3 +43,21 @@ class SendMessageForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )
+
+
+class ContactInfoForm(forms.Form):
+    phone_number = PhoneNumberField(max_length=32, required=False)
+    uuid = forms.CharField(max_length=64, required=False)
+    account = forms.ChoiceField(choices=get_linked_phone_numbers_as_dict, required=False)
+
+    def clean(self) -> Dict[str, Any]:
+        cleaned_data = super().clean()
+
+        if not any(cleaned_data.get(x, "") for x in ("phone_number", "uuid")):
+            msg = "You must either enter a phone number or uuid."
+            self._errors["phone_number"] = self.error_class([(msg)])
+            self._errors["uuid"] = self.error_class([(msg)])
+
+        return cleaned_data
+
+

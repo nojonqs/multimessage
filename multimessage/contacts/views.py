@@ -1,22 +1,27 @@
 import threading
 from itertools import chain
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import phonenumbers
-from contacts.forms import ContactCreateForm, ContactListCreateForm
+from contacts.forms import (ContactCreateForm, ContactInfoForm,
+                            ContactListCreateForm, SendMessageForm)
 from contacts.models import Contact, Group
-from contacts.signal_helper import (convert_uri_to_qrcode, get_link_qrcode,
-                                    get_contact_with_uuid, is_signal_linked,
-                                    signal_cli_finishLink,
+from contacts.signal_helper import (convert_uri_to_qrcode,
+                                    get_contact_with_phonenumber,
+                                    get_contact_with_uuid, get_link_qrcode,
+                                    is_signal_linked, signal_cli_finishLink,
                                     signal_cli_listContacts,
-                                    signal_cli_listGroups, signal_cli_send,
+                                    signal_cli_listGroups,
+                                    signal_cli_listIdentities, signal_cli_send,
+                                    signal_cli_sendSyncRequest,
                                     signal_cli_startLink)
-from contacts.types import SignalGroup
+from contacts.types import SignalContact, SignalGroup
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.template import loader
 from django.urls import reverse_lazy
 from django.views import generic
+from phonenumber_field.phonenumber import PhoneNumber
 
 
 class ContactOverview(generic.ListView):
@@ -173,6 +178,42 @@ def import_group_from_signalcli(request, account: str, signal_group_id: str):
 
 
 # TEST VIEWS
+
+def info_about_contact(request):
+    if request.method == "GET":
+        form = ContactInfoForm()
+        request.session["searched_contacts"] = []
+        contacts = request.session.get("searched_contacts") or []
+        return render(request, "contacts/info_about_contact.html", {"form": form, "contacts": contacts})
+
+    if request.method == "POST":
+        form = ContactInfoForm(request.POST)
+        if not form.is_valid():
+            contacts = request.session.get("searched_contacts") or []
+            return render(request, "contacts/info_about_contact.html", {"form": form, "contacts": contacts})
+
+        phone_number: Optional[PhoneNumber] = form.cleaned_data["phone_number"] or None
+        uuid: str = form.cleaned_data["uuid"] or None
+        account: str = form.cleaned_data["account"] or None
+        print(f"INFO: Account is {account}")
+        
+        # we assert this since the form should take care of that
+        assert phone_number or uuid
+
+        if uuid:
+            contact: SignalContact = get_contact_with_uuid(uuid, "**Phone_number**")
+        if phone_number:
+            contact: SignalContact = get_contact_with_phonenumber(phone_number.as_international, account)
+        
+        contacts: List[SignalContact] = request.session.get("searched_contacts") or []
+        
+        contacts = [c for c in contacts if c["uuid"] != contact["uuid"]]
+        
+        contacts.insert(0, contact)
+        request.session["searched_contacts"] = contacts
+
+        return render(request, "contacts/info_about_contact.html", {"form": form, "contacts": contacts})
+
 
 def list_contacts(request):
     return HttpResponse(signal_cli_listContacts(["**Phone_number**", "**Phone_number**"], "**Phone_number**"))
