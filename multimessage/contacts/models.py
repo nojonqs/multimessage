@@ -4,8 +4,8 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 class Contact(models.Model):
     display_name = models.CharField(max_length=64, null=False, blank=True)
-    phone_number = PhoneNumberField(null=False, blank=False, unique=True)
-    uuid = models.CharField(max_length=64, null=False, blank=True)
+    phone_number = PhoneNumberField(null=False, blank=False)
+    uuid = models.CharField(max_length=64, null=False, blank=True, unique=True)
 
     @property
     def international_number(self):
