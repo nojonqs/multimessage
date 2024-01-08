@@ -1,6 +1,7 @@
 set -x
 
 signal-cli -v --config $SIGNAL_CLI_CONFIG --log-file $SIGNAL_CLI_LOGS/$(date -d "today" +"%Y%m%d%H%M").log daemon --no-receive-stdout --socket $SIGNAL_CLI_SOCKET &
+memcached -l $MEMCACHED_LOCATION -d -u root
 
 if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]
 then

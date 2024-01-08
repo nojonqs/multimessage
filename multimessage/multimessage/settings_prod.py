@@ -90,6 +90,22 @@ DATABASES = {
     },
 }
 
+# Cache
+# https://docs.djangoproject.com/en/5.0/topics/cache/#setting-up-the-cache
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        "LOCATION": os.environ.get("MEMCACHED_LOCATION"),
+        "TIMEOUT": 60 * 30,
+    },
+    "uuids": {
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        "LOCATION": os.environ.get("MEMCACHED_LOCATION"),
+        "TIMEOUT": 60 * 30,
+    }
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

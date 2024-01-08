@@ -23,6 +23,9 @@ RUN apt-get --assume-yes install signal-cli-native signal-cli-service
 # needed by pydbus
 RUN apt-get --assume-yes install libcairo2-dev libgirepository1.0-dev
 
+# memcached
+RUN apt-get --assume-yes install memcached
+
 # install python packages
 COPY requirements_prod.txt /app
 

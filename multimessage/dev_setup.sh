@@ -7,6 +7,7 @@ source ${SCRIPT_DIR}/../.venv/bin/activate
 pip install -r requirements_dev.txt
 
 signal-cli --config "signal-cli/" -v daemon --socket $SIGNAL_CLI_SOCKET &
+memcached -l $MEMCACHED_LOCATION -d &
 
 python ${SCRIPT_DIR}/manage.py makemigrations --settings multimessage.settings_dev
 python ${SCRIPT_DIR}/manage.py migrate --settings multimessage.settings_dev
