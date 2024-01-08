@@ -264,7 +264,7 @@ def info_about_contact(request):
         assert phone_number or uuid
 
         if uuid:
-            contact: SignalContact = get_contact_with_uuid(uuid, "**Phone_number**")
+            contact: SignalContact = get_contact_with_uuid(uuid, account)
         if phone_number:
             contact: SignalContact = get_contact_with_phonenumber(phone_number.as_international, account)
         
