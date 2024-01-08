@@ -41,7 +41,7 @@
                             <h6>Admins</h6>
                             {% for admin in group.admins %}
                             <div id="group_{{ group.name }}_admin_{{ admin }}">
-                                {{ admin }}
+                                {{ admin.profile.givenName }}{% if admin.profile.familyName %} {{ admin.profile.familyName }}{% endif %}{% if admin.number %} ({{ admin.number }}){% endif %}
                             </div>
                             {% endfor %}
                         </div>
@@ -50,7 +50,7 @@
                             <h6>Member</h6>
                             {% for member in group.members %}
                             <div id="group_{{ group.name }}_member_{{ member }}">
-                                {{ member }}
+                                {{ member.profile.givenName }}{% if member.profile.familyName %} {{ member.profile.familyName }}{% endif %}{% if member.number %} ({{ member.number }}){% endif %}
                             </div>
                             {% endfor %}
                         </div>

@@ -41,6 +41,14 @@ class SignalGroup(TypedDict):
     groupInviteLink: str
 
 
+class SignalGroupWithContacts(SignalGroup):
+    members: List[SignalContact]
+    admins: List[SignalContact]
+    pendingMembers: List[SignalContact]
+    requestingMembers: List[SignalContact]
+    banned: List[SignalContact]
+
+
 class SignalCliJsonRpcRequest(TypedDict):
     jsonrpc: str
     method: str

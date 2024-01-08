@@ -31,7 +31,7 @@ urlpatterns = [
     path("setup/", setup_view, name="signal_setup"),
     path("link_device_qrcode/<str:qrcode_uri>/", link_device, name="signal_link_device_qrcode"),
     path(
-        "signal/fetch_groups/<str:phone_number>/",
+        "signal/fetch_groups/<str:account>/",
         views.fetch_group_view,
         name="signal_fetch_groups",
     ),
