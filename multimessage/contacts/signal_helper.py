@@ -34,10 +34,13 @@ def send_data_to_socket(data: SignalCliJsonRpcRequest):
         print(f"SIGNAL_SOCKET_SEND: {data}")
         s.sendall(d.encode())
         res = json.loads(recvall(s))
-        print(f"SIGNAL_SOCKET_RECV: {res}")
+        # print(f"SIGNAL_SOCKET_RECV: {res}")
 
         assert res.get("id") == data["id"] or res.get("method") == "receive"
 
+        if res.get("method") == "receive":
+            return None
+        
         if "error" in res:
             print("[ERROR]", res["error"]["code"], res["error"]["message"])
             raise SignalCliSocketError()
@@ -134,14 +137,13 @@ def signal_cli_send(recipients: [Contact], account: str, message: str):
             "recipient": uuids,
             "message": message,
         },
-        "id": f"send_{account}_{uuids}"
+        "id": f"send_{account}"
     }
     res = send_data_to_socket(data)
     return res
-    # signal.sendMessage(message=message, attachments=[], recipient=recipiant.phone_number.as_international)
 
 
-def signal_cli_listContacts(recipients: [str], account: str = None):
+def signal_cli_listContacts(recipients: [str], account: str = None) -> List[SignalContact]:
     # https://github.com/AsamK/signal-cli/blob/master/man/signal-cli.1.adoc#listcontacts
 
     # assumes the phone_numbers are valid signal phone numbers
@@ -151,8 +153,9 @@ def signal_cli_listContacts(recipients: [str], account: str = None):
         "method": "listContacts",
         "params": {
             "recipient": recipients,
+            "allRecipients": True,
         },
-        "id": f"listContacts_{account}_{recipients}"
+        "id": f"listContacts_{account}"
     }
     if account is not None:
         data["params"]["account"] = account
@@ -169,6 +172,7 @@ def signal_cli_listGroups(account: str, group_id: str = None) -> List[SignalGrou
         "method": "listGroups",
         "params": {
             "account": account,
+            "detailed": True,
         },
         "id": f"listGroups_{account}",
     }
