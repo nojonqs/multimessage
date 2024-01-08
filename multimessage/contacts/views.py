@@ -16,13 +16,13 @@ from contacts.signal_helper import (convert_uri_to_qrcode,
                                     signal_cli_sendSyncRequest,
                                     signal_cli_startLink)
 from contacts.types import SignalContact, SignalGroup, SignalGroupWithContacts
+from django.core.cache import caches
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.template import loader
 from django.urls import reverse_lazy
 from django.views import generic
 from phonenumber_field.phonenumber import PhoneNumber
-from django.core.cache import caches
 
 
 class ContactOverview(generic.ListView):
