@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <div class="row mt-5">
     <div class="col">
@@ -40,13 +41,24 @@
             </div>
             <ul class="list-group list-group-flush">
                 {% for key, value in contact.items %}
-                <li class="list-group-item">
-                    <div class="form-floating">
-                        <input class="form-control placeholder" id="{{ key }}Disabled" value="{{ value }}" disabled>
-                        <label for="{{ key }}Disabled">{{ key }}</label>
-                    </div>
-                </li>
-                {% endfor $}
+                    {% if key == "profile" and value is not None %}
+                        {% for subkey, subvalue in value.items %}
+                        <li class="list-group-item">
+                            <div class="form-floating">
+                                <input class="form-control placeholder" id="{{ subkey }}Disabled" value="{{ subvalue }}" disabled>
+                                <label for="{{ subkey }}Disabled">{{ key }}.{{ subkey }}</label>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item">
+                            <div class="form-floating">
+                                <input class="form-control placeholder" id="{{ key }}Disabled" value="{{ value }}" disabled>
+                                <label for="{{ key }}Disabled">{{ key }}</label>
+                            </div>
+                        </li>
+                    {% endif %}
+                {% endfor %}
                 <!-- <li class="list-group-item">
                     <div class="form-floating">
                         <input type="tel" class="form-control placeholder" id="numberDisabled" placeholder="0123 456789" value="{{ contact.number }}" disabled>
