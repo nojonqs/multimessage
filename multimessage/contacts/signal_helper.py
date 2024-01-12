@@ -3,7 +3,7 @@ import io
 import json
 import os
 import socket
-from typing import List
+from typing import List, Optional
 
 import qrcode
 from contacts.models import Contact
@@ -143,7 +143,7 @@ def signal_cli_send(recipients: [Contact], account: str, message: str):
     return res
 
 
-def signal_cli_listContacts(recipients: [str], account: str = None) -> List[SignalContact]:
+def signal_cli_listContacts(recipients: [str] = None, account: str = None, include_all_recipients = True) -> List[SignalContact]:
     # https://github.com/AsamK/signal-cli/blob/master/man/signal-cli.1.adoc#listcontacts
 
     # assumes the phone_numbers are valid signal phone numbers
@@ -152,13 +152,17 @@ def signal_cli_listContacts(recipients: [str], account: str = None) -> List[Sign
         "jsonrpc": "2.0",
         "method": "listContacts",
         "params": {
-            "recipient": recipients,
-            "allRecipients": True,
         },
         "id": f"listContacts_{account}"
     }
     if account is not None:
         data["params"]["account"] = account
+
+    if recipients is not None:
+        data["params"]["recipients"] = recipients
+
+    if include_all_recipients:
+        data["params"]["allRecipients"] = True
     
     res: List[SignalContact] = send_data_to_socket(data)
     return res
@@ -183,6 +187,18 @@ def signal_cli_listGroups(account: str, group_id: str = None) -> List[SignalGrou
     return res
 
 
+def list_groups_cleaned(*args, **kwargs) -> List[SignalGroup]:
+    res = signal_cli_listGroups(*args, **kwargs)
+
+    groups = list(filter(lambda g: g["name"] is not None, res))
+    for g in groups:
+        if g["name"] == "":
+            g["name"] = "Note to self"
+    
+    groups = sorted(groups, key=lambda d: d["name"])
+    return groups
+
+
 def signal_cli_listIdentities(account: str, recipient: str = None):
     # https://github.com/AsamK/signal-cli/blob/master/man/signal-cli.1.adoc#listidentities
     data: SignalCliJsonRpcRequest = {
@@ -197,6 +213,7 @@ def signal_cli_listIdentities(account: str, recipient: str = None):
         data["params"]["number"] = recipient
     
     res = send_data_to_socket(data)
+    print(res)
 
 
 
@@ -228,8 +245,15 @@ def get_contact_with_phonenumber(phone_number: str, account: str) -> SignalConta
 
 
 def get_uuid_for_number(phone_number: str) -> str:
-    contacts = signal_cli_listContacts([phone_number])
-    assert len(contacts) == 1
-    contact = contacts[0]
-    print(contact)
-    return contact["uuid"]
+    return get_contact_with_phonenumber(phone_number, account=None)["uuid"]
+
+
+def get_contact_name(contact: SignalContact) -> Optional[str]:
+    if contact["name"]:
+        return contact["name"]
+    elif contact["profile"] and contact["profile"].get("givenName"):
+        return contact["profile"]["givenName"] + (contact["profile"]["familyName"] or "")
+    elif contact["username"]:
+        return contact["username"]
+    else:
+        return None
