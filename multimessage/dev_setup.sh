@@ -6,7 +6,7 @@ set +o allexport
 source ${SCRIPT_DIR}/../.venv/bin/activate
 pip install -r requirements_dev.txt
 
-signal-cli --config "signal-cli/" -v daemon --socket $SIGNAL_CLI_SOCKET &
+signal-cli --config "signal-cli/" -v daemon --ignore-attachments --no-receive-output --socket $SIGNAL_CLI_SOCKET &
 memcached -l $MEMCACHED_LOCATION -d &
 
 python ${SCRIPT_DIR}/manage.py makemigrations --settings multimessage.settings_dev
