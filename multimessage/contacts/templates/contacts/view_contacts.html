@@ -1,0 +1,88 @@
+{% load custom_tags %}
+
+<div id="contact_search_container" class="mt-3 mb-4 d-flex form-floating">
+    <input type="search" id="contact_search_bar" name="" onkeyup="filterContacts(event)" class="form-control"
+        placeholder="Search By Name..." />
+    <label for="contact_search_bar">Search contacts by name...</label>
+</div>
+
+<hr class="border border-1 opacity-75">
+
+<div class="row row-cols-2 g-3">
+    {% for contact in contacts_json %}
+    <div class="col signal_contact d-fex align-items-stretch">
+        <div class="card h-100 border border-dark-subtle">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{% get_contact_name contact %}</h5>
+                <h6 class="card-subtitle mb-2 text-muted flex-grow-1">Number: {% firstof contact.number "..." %}</h6>
+
+                <button type="button" class="btn btn-outline-primary mt-auto" id="contact_details_button_{{ contact.uuid }}" data-bs-toggle="modal"
+                    data-bs-target="#contact_details_{{ contact.uuid }}">
+                    Details
+                </button>
+
+                <div class="modal fade" id="contact_details_{{ contact.uuid }}" data-backdrop="static"
+                    data-keyboard="false" tabindex="-1" aria-labelledby="contact_details_{{ contact.uuid }}"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <!-- <h5 class="modal-title"></h5> -->
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="contact_modal_body_{{ contact.uuid }}">
+                                {% include 'contacts/contact_info_card.html' with contact=contact only %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {# We have to adjust the style.height of the textareas in the modal when opening the modal #}
+                {# We cannot do this before, since the elements are hidden beofre and we cannot access scrollHeight i.e. #}
+                {# see contact_info_input_field.html #}
+                <script>
+                    var modal = document.getElementById("contact_details_{{ contact.uuid }}");
+                    modal.addEventListener('shown.bs.modal', event => {
+                        {% for key in contact.keys %}
+                            {% if key == "profile" %}
+                                {% for subkey in contact.profile %}
+                                    // Access the scrollHeight of the textarea
+                                    var textarea = document.getElementById('{{ contact.uuid }}.{{ key }}.{{ subkey }}.disabled');
+                                    var scrollHeight = textarea.scrollHeight;
+                                
+                                    // set the scrollHeight as needed
+                                    textarea.style.height = scrollHeight + 3 + "px";
+                                {% endfor %}
+                            {% else %}
+                                // Access the scrollHeight of the textarea
+                                var textarea = document.getElementById('{{ contact.uuid }}.{{ key }}.disabled');
+                                var scrollHeight = textarea.scrollHeight;
+                            
+                                // set the scrollHeight as needed
+                                textarea.style.height = scrollHeight + 3 + "px";
+                            {% endif %}
+                        {% endfor %}
+                    });
+                </script>
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script type="text/javascript">
+    function filterContacts(event) {
+        let input = event.target.value.toLowerCase();
+        let x = document.querySelectorAll("div.col.signal_contact");
+        x.forEach((item) => {
+            let contact_name = item.querySelector(".card-title").innerText;
+
+            if (!contact_name.toLowerCase().includes(input)) {
+                item.classList.add("visually-hidden");
+            } else {
+                item.classList.remove("visually-hidden");
+            }
+        });
+    }
+</script>

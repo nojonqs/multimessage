@@ -41,7 +41,11 @@
         </div>
       </div>
     </nav> 
-    <div class='container mt-3'>{% block content %}{% endblock content %}</div>
+    <div class='container-fluid'>
+      <div class="mx-5 px-5">
+        {% block content %}{% endblock content %}
+      </div>
+    </div>
     {% block javascript %}{% endblock javascript %}
   </body>
 </html>

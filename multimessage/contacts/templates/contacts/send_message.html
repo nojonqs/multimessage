@@ -1,8 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
-<form action="{% url 'contact:signal_send_message' %}" method="post">
-  {% csrf_token %}
-  {{ form }}
-  <input type="submit" value="Send">
-</form>
+<div class="">
+  <form action="{% url 'contact:signal_send_message' %}" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Send">
+  </form>
+</div>
+<div class="">
+  <div class="row row-cols-2 gx-5">
+    <div class="col border-end">
+      {% include 'contacts/view_groups.html' with groups_json=groups_json account=account only %}
+    </div>
+    <div class="col">
+      {% include 'contacts/view_contacts.html' with contacts_json=contacts_json account=account only %}
+    </div>
+  </div>
+</div>
 {% endblock content %}

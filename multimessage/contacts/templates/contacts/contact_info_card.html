@@ -1,0 +1,27 @@
+{% load custom_tags %}
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">{% get_contact_name contact %}</h5>
+        <p class="card-text">{{ contact.profile.about }}</p>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for key, value in contact.items %}
+            {% if key == "profile" and value is not None %}
+                {% for subkey, subvalue in value.items %}
+                <li class="list-group-item">
+                    <div class="form-floating">
+                        {% include 'contacts/contact_info_input_field.html' with key=key|add:"."|add:subkey value=subvalue  uuid=contact.uuid only %}
+                    </div>
+                </li>
+                {% endfor %}
+            {% else %}
+                <li class="list-group-item">
+                    <div class="form-floating">
+                        {% include 'contacts/contact_info_input_field.html' with key=key value=value uuid=contact.uuid only %}
+                    </div>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>

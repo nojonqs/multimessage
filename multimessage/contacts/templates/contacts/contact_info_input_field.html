@@ -1,0 +1,15 @@
+
+<textarea class="form-control placeholder" id="{{ uuid }}.{{ key }}.disabled" disabled>{{ value }}</textarea>
+<label for="{{ uuid }}.{{ key }}.disabled">{{ key }}</label>
+
+<script type="text/javascript">
+    function expandTextArea(id) {
+        let e = document.getElementById(id);
+        let before = e.scrollHeight;
+        {# This works everywhere where the textarea is visible in the DOM. Otherwise, this is not loaded and scrollHeight will be 0 #}
+        {# see view_contacts.html #}
+        e.style.height = e.scrollHeight + 3 + "px";
+        e.style.resize = "none";
+    }
+    expandTextArea("{{ uuid }}.{{ key }}.disabled");
+</script>
