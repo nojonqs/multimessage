@@ -1,6 +1,6 @@
 from contacts.views import (get_uuid_for_number, import_group_from_signalcli,
                             info_about_contact, link_device, list_contacts,
-                            list_identities_view, send_message_view,
+                            list_identities_view, send_message_view, get_group_members,
                             setup_view,
                             sync_contacts_groups_from_primarydevice)
 from django.urls import path
@@ -35,6 +35,7 @@ urlpatterns = [
         views.fetch_group_view,
         name="signal_fetch_groups",
     ),
+    path("get_group_members/<str:account>/<path:group_id>/", get_group_members, name="get_group_members"),
     path("list_contacts/", list_contacts, name="listContacts"),
     path("uuid/<str:phone_number>/", get_uuid_for_number),
     path("import_group_from_signalcli/<str:account>/<path:signal_group_id>/", import_group_from_signalcli, name="import_group_from_signalcli"),

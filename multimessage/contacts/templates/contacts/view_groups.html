@@ -6,56 +6,75 @@
         placeholder="Search By Name..." />
     <label for="group_search_bar">Search by name...</label>
 </div>
-<div class="hr"></div>
 
-<div id="groups_container" class="accordion">
+<hr class="border border-1 opacity-75">
+
+<div class="row row-cols-3 g-2">
     {% for group in groups_json %}
-    <div class="single_group_container accordion-item mb-4">
-        <div class="accordion-header">
-            <div class="group_name accordion-button d-flex flex-fill {% if not forloop.first %} collapsed{% endif %}"
-                type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ forloop.counter }}"
-                aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
-                aria-controls="collapse_{{ forloop.counter }}">
-                <div class="accordion-header-text d-flex flex-row">
-                    <h5 class="me-auto">
-                        {{ group.name }}
-                    </h5>
-                </div>
-            </div>
-        </div>
-        <div id="collapse_{{ forloop.counter }}"
-            class="accordion-collapse collapse{% if forloop.first %} show{% endif %}">
-            <div class="accordion-body">
-                <div class="d-flex flex-column">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ group.name }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted ">#Member: {{ group.members|length }}</h6>
 
-                    <div id="group_buttons_{{ forloop.counter }}" class="me-5">
-                        <form action="{% url 'contact:import_group_from_signalcli' account group.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" id="group_add_{{ forloop.counter }}"
-                                class="btn btn-primary">Add</button>
-                        </form>
+                <button type="button" class="btn btn-primary" id="group_details_button_{{ forloop.counter }}" data-bs-toggle="modal"
+                    data-bs-target="#group_details_{{ forloop.counter }}">
+                    Details
+                </button>
 
-                    </div>
-                    <div id="group_details_{{ forloop.counter }}">
-                        <div id="group_{{ group.name }}_admins">
-                            <h6>Admins</h6>
-                            {% for admin in group.admins %}
-                            <div id="group_{{ group.name }}_admin_{{ admin }}">
-                                {{ admin.profile.givenName }}{% if admin.profile.familyName %} {{ admin.profile.familyName }}{% endif %}{% if admin.number %} ({{ admin.number }}){% endif %}
+                <div class="modal fade" id="group_details_{{ forloop.counter }}" data-backdrop="static"
+                    data-keyboard="false" tabindex="-1" aria-labelledby="group_details_{{ forloop.counter }}"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">{{ group.name }}</h5>
+                                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
-                            {% endfor %}
-                        </div>
-                        <div class="hr"></div>
-                        <div id="group_{{ group.name }}_members">
-                            <h6>Member</h6>
-                            {% for member in group.members %}
-                            <div id="group_{{ group.name }}_member_{{ member }}">
-                                {{ member.profile.givenName }}{% if member.profile.familyName %} {{ member.profile.familyName }}{% endif %}{% if member.number %} ({{ member.number }}){% endif %}
+                            <div class="modal-body" id="group_modal_body_{{ forloop.counter }}">
+                                <div id="group_loading_{{ forloop.counter }}" class="d-flex justify-content-center">
+                                    <div class="spinner-border mt-3 mb-3" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+
+                                <ul id="group_member_list_{{ forloop.counter }}">
+
+                                </ul>
                             </div>
-                            {% endfor %}
                         </div>
                     </div>
                 </div>
+
+                <script type="text/javascript">
+                    document.getElementById('group_details_{{ forloop.counter }}').addEventListener('shown.bs.modal', event => {
+                        const url = "{% url 'contact:get_group_members' account group.id %}";
+                        let modal_loading = document.getElementById('group_loading_{{ forloop.counter }}');
+                        if (!modal_loading.classList.contains('visually-hidden')) {
+                            $.getJSON(url, function(data, status) {
+                                console.log(status);
+                                console.log(data);
+                                let modal_body = document.getElementById('group_modal_body_{{ forloop.counter }}');
+                                modal_loading.classList.add("visually-hidden");
+                                
+                                let list = document.getElementById('group_member_list_{{ forloop.counter }}');
+                                data.forEach((member) => {
+                                    let m = document.createElement('li');
+                                    let text = member["profile"]["givenName"];
+                                    if (member["number"] != null) {
+                                        text = text + " (" + member["number"] + ")";
+                                    }
+                                    
+                                    m.appendChild(document.createTextNode(text));
+                                    list.appendChild(m);
+                                });
+                            });
+                        }                        
+                    });
+                </script>
+
             </div>
         </div>
     </div>
@@ -67,15 +86,11 @@
 <script type="text/javascript">
     function filterGroups(event) {
         let input = event.target.value.toLowerCase();
-        let x = document.querySelectorAll(".single_group_container");
+        let x = document.querySelectorAll("div.col");
         x.forEach((item) => {
-            let cardheader = item.getElementsByClassName("accordion-header")[0];
-            // console.log(cardheader);
-            let group_name = cardheader.getElementsByClassName("group_name")[0];
-            // console.log(group_name);
+            let group_name = item.querySelector(".card-title").innerText;
 
-            if (!group_name.innerText.toLowerCase().includes(input)) {
-                console.log("hiding group " + group_name.innerText);
+            if (!group_name.toLowerCase().includes(input)) {
                 item.classList.add("visually-hidden");
             } else {
                 item.classList.remove("visually-hidden");

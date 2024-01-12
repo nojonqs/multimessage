@@ -23,6 +23,7 @@ from django.template import loader
 from django.urls import reverse_lazy
 from django.views import generic
 from phonenumber_field.phonenumber import PhoneNumber
+import json
 
 
 class ContactOverview(generic.ListView):
@@ -152,52 +153,59 @@ def grouper(iterable, n, fillvalue=None):
 def fetch_group_view(request, account):
     if request.method == "GET":
         groups_json: List[SignalGroup] = signal_cli_listGroups(account)
-        groups_json_contacts: List[SignalGroupWithContacts] = []
 
-        cache = caches["uuids"]
+        # remove deleted groups and add a name for the "Note to self" group
+        groups_json = list(filter(lambda g: g["name"] is not None, groups_json))
+        for g in groups_json:
+            if g["name"] == "":
+                g["name"] = "Note to self"
 
-        # get all uuids that are not yet cached
-        uuids_need_fetching = set()
-        for group in groups_json:
-            member_uuids = map(lambda m: m["uuid"], group["members"])
-            requesting_uuids = map(lambda m: m["uuid"], group["requestingMembers"])
-            pending_uuids = map(lambda m: m["uuid"], group["pendingMembers"])
-            uuids = set(member_uuids) | set(requesting_uuids) | set(pending_uuids)
-            for uuid in uuids:
-                if cache.get(uuid) is None:
-                    uuids_need_fetching.add(uuid)
+        # groups_json_contacts: List[SignalGroupWithContacts] = []
 
-        print(f"DEBUG: uuids to fetch: {len(uuids_need_fetching)}")
-        # fetch and cache {uuid: contact} for the missing uuids
-        if len(uuids_need_fetching) > 0:
-            # for sublist_uuids in grouper(uuids_need_fetching, 200):
-            print(f"DEBUG: Fetching {len(uuids_need_fetching)} from Signal API")
-            freshly_fetched_contacts: List[SignalContact] = signal_cli_listContacts(list(uuids_need_fetching), account)
-            for c in freshly_fetched_contacts:
-                cache.set(c["uuid"], c)
+        # cache = caches["uuids"]
 
-        # replace all fields that have List[SignalAccount] to a List[SignalContact],
-        # so we can access contact fields like givenName etc.
-        for group in groups_json:
-            group_with_contacts: SignalGroupWithContacts = group
-            if group_with_contacts["name"] is None:
-                continue
+        # # get all uuids that are not yet cached
+        # uuids_need_fetching = set()
+        # for group in groups_json:
+        #     member_uuids = map(lambda m: m["uuid"], group["members"])
+        #     requesting_uuids = map(lambda m: m["uuid"], group["requestingMembers"])
+        #     pending_uuids = map(lambda m: m["uuid"], group["pendingMembers"])
+        #     uuids = set(member_uuids) | set(requesting_uuids) | set(pending_uuids)
+        #     for uuid in uuids:
+        #         if cache.get(uuid) is None:
+        #             uuids_need_fetching.add(uuid)
 
-            if group_with_contacts["name"] == "":
-                group_with_contacts["name"] = "Note to self"
+        # print(f"DEBUG: uuids to fetch: {len(uuids_need_fetching)}")
+        # # fetch and cache {uuid: contact} for the missing uuids
+        # if len(uuids_need_fetching) > 0:
+        #     # for sublist_uuids in grouper(uuids_need_fetching, 200):
+        #     print(f"DEBUG: Fetching {len(uuids_need_fetching)} from Signal API")
+        #     freshly_fetched_contacts: List[SignalContact] = signal_cli_listContacts(list(uuids_need_fetching), account)
+        #     for c in freshly_fetched_contacts:
+        #         cache.set(c["uuid"], c)
 
-            for field in ("members", "admins", "pendingMembers", "requestingMembers", "banned"):
-                uuids: List[str] = list(map(lambda m: m["uuid"], group[field]))
-                contacts = list(cache.get_many(uuids).values())
-                if len(uuids) != len(contacts):
-                    print(f"DEBUG: Tried retrieving {len(uuids)} contacts from cache via uuids, only got {len(contacts)}")
+        # # replace all fields that have List[SignalAccount] to a List[SignalContact],
+        # # so we can access contact fields like givenName etc.
+        # for group in groups_json:
+        #     group_with_contacts: SignalGroupWithContacts = group
+        #     if group_with_contacts["name"] is None:
+        #         continue
+
+        #     if group_with_contacts["name"] == "":
+        #         group_with_contacts["name"] = "Note to self"
+
+        #     for field in ("members", "admins", "pendingMembers", "requestingMembers", "banned"):
+        #         uuids: List[str] = list(map(lambda m: m["uuid"], group[field]))
+        #         contacts = list(cache.get_many(uuids).values())
+        #         if len(uuids) != len(contacts):
+        #             print(f"DEBUG: Tried retrieving {len(uuids)} contacts from cache via uuids, only got {len(contacts)}")
                 
-                group_with_contacts[field] = contacts
+        #         group_with_contacts[field] = contacts
 
-            groups_json_contacts.append(group_with_contacts)
+        #     groups_json_contacts.append(group_with_contacts)
         
         # alphabaticly sort the groups by their name
-        alphabaticly_sorted_groups = sorted(groups_json_contacts, key=lambda d: d["name"])
+        alphabaticly_sorted_groups = sorted(groups_json, key=lambda d: d["name"])
 
         ctx = {"groups_json": alphabaticly_sorted_groups, "account": account}
         return render(request, "contacts/view_groups.html", context=ctx)
@@ -231,6 +239,37 @@ def import_group_from_signalcli(request, account: str, signal_group_id: str):
     group_model.contacts.add(*contact_models)
 
     print(f"Created group model {group_model} from group json {group}")
+
+
+def get_group_members(request, account: str, group_id: str):
+    if request.method == "GET":
+        print(f"Got get request with {account = } and {group_id = }")
+        groups: SignalGroup = signal_cli_listGroups(account, group_id)
+        if len(groups) == 0:
+            return HttpResponseBadRequest(f"Could not fetch group with id {group_id}")
+
+        assert len(groups) == 1
+        group = groups[0]
+
+        members: List[SignalAccount] = group["members"]
+        members_uuids = list(map(lambda m: m["uuid"], members))
+
+        members: List[SignalContact] = signal_cli_listContacts(members_uuids, account)
+        def sort_by_any_name(m):
+            if m["profile"] and m["profile"].get("givenName"):
+                return m["profile"]["givenName"].lower()
+            elif m["username"]:
+                return m["username"].lower()
+            elif m["name"]:
+                return m["name"].lower()
+            else:
+                return "?"
+
+        members = sorted(members, key=sort_by_any_name)
+
+        return HttpResponse(json.dumps(members))
+        
+    return None
 
 
 def sync_contacts_groups_from_primarydevice(request, account: str):
